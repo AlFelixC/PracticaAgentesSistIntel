@@ -61,14 +61,37 @@ class GoalOrientedAgent(BaseAgent):
     
     #método interno que encapsula la creació nde un plan
     def _CreatePlan(self,perception,map):
-        #currentGoal = self.problem.GetGoal()
+        #TODO REALIZADO (Sujeto a posibles cambios)
+        currentGoal = self.problem.GetGoal()
+        print("Objetivo actual ",currentGoal.value)
         if self.goalMonitor != None:
-            #TODO creamos un plan, pasos:
-            #-con gualMonito, seleccionamos la meta actual (Que será la mas propicia => definir la estrategia a seguir).
-            #-le damos el modo inicial _CreateInitialNode
-            #-establecer la meta actual al problema para que A* sepa cual es.
-            #-Calcular el plan usando A*
-            print("TODO aqui faltan cosas :)")
+            #Seleccionamos el objetivo actual segun la estrategia que llevemos
+            if self.goalMonitor.NeedReplaning(perception,map,self):
+                newGoal = self.goalMonitor.SelectGoal(perception,map,self)
+                print("Cambio de objetivo a ",newGoal.value)
+                self.problem.SetGoal(newGoal)
+                #Creamos el nuevo plan para alcanzar el objetivo
+                initialNode = self._CreateInitialNode(perception)
+                #Actualizamos el mapa
+                self.problem.InitMap(map)
+                self.problem.initialState = initialNode
+
+                #Volvemos a inicializar el A* con el nuevo problema
+                self.aStar = AStar(self.problem)
+
+                #Ejecutar la busqueda A*
+                if self.aStar.Search():
+                    newPlan = self.aStar.GetPlan()
+                    print(f"Nuevo plan creado con {len(newPlan)} pasos.")
+                    return newPlan
+                else:
+                    print("No se ha encontrado plan, por lo tanto mantenemos el actual")
+                    return self.plan
+            else:
+                print("Mantenemos el plan actual, no necesitamos uno nuevo")
+                return self.plan
+
+            
         return self.aStar.GetPlan()
         
     @staticmethod
@@ -94,18 +117,23 @@ class GoalOrientedAgent(BaseAgent):
     
     #no podemos iniciarlo en el start porque no conocemos el mapa ni las posiciones de los objetos
     def InitAgent(self,perception,map):
-        #creamos el problema
-        #TODO inicializamos:
-        # - creamos el problema con BCProblem
-        # - inicializamos el mapa problem.InitMap
-        # - inicializamos A*
-        # - creamos un plan inicial
-        print("TODO aqui faltan cosas :)")
-        goal1CommanCenter = None
+        #TODO REALIZADOS
+        initialNode = self._CreateInitialNode(perception)
+        goal1CommanCenter = self._CreateDefaultGoal(perception)
         goal2Life = self._CreateLifeGoal(perception)
         goal3Player = self._CreatePlayerGoal(perception)
-        self.goalMonitor = GoalMonitor(self.problem,[goal1CommanCenter,goal2Life,goal3Player])
 
+        #Inicializamos el problema y A*
+        self.problem = BCProblem(initialNode,[goal1CommanCenter, goal2Life, goal3Player])
+        self.problem.InitMap(map)
+
+        self.aStar = AStar(self.problem)
+        self.aStar.heuristic = self.problem.Heuristic(self, initialNode)
+        self.plan = self._CreatePlan(perception,map)
+
+        #Vamos a crear el Goal Monitor para saber si cumplimos los objetivos
+        self.goalMonitor = GoalMonitor(self.problem,[goal1CommanCenter,goal2Life,goal3Player])
+       
     #muestra un plan por consola
     @staticmethod
     def ShowPlan(plan):
