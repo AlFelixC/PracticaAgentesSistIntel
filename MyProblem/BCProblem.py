@@ -34,17 +34,36 @@ class BCProblem(Problem):
     #Calcula la heuristica del nodo en base al problema planteado (Se necesita reimplementar)
     def Heuristic(self, node):
         #TODO REALIZADO heurística del nodo
-        goal = self.GetGoal()
-        resul = abs(node.x - goal.x) + abs(node.y - goal.y)
+        #Distancia Manhattan al objetivo (En tablas en cuadricula es mas eficiente)
+        return abs(node.x - self.goal.x) + abs(node.y - self.goal.y)
 
-        #Adicion por obstaculo encontrado
-        if node.value == AgentConsts.BRICK or node.value == AgentConsts.UNBREAKABLE:
-            resul += 2
+    def GetMovementCost(self, cell_value):
+        if cell_value == AgentConsts.BRICK:
+            return 3  # Mayor costo para atravesar ladrillos
+        elif cell_value == AgentConsts.LIFE:
+            return 0.5  # Incentivo para recoger power-ups de vida
+        return 1  # Costo base para celdas transitables
 
-        return resul
+    def isValidMove(self, x, y):
+        #Verificar limites del mapa
+        if x < 0 or y < 0 or x >= self.xSize or y >= self.ySize:
+            return False
+        
+        #Obtener el valor de la celda
+        cellValue = self.map[y, x]
+        print("Valor de la celda: ", cellValue)
+        #Definir celdas no transitables
+        invalidTile = [AgentConsts.UNBREAKABLE, AgentConsts.BRICK, AgentConsts.COMMAND_CENTER, 
+                        AgentConsts.PLAYER, AgentConsts.OTHER, AgentConsts.SEMI_BREKABLE, 
+                        AgentConsts.SEMI_UNBREKABLE]
+        
+        #Un movimiento es valido si la celda no esta en la lista de no transitables
+        return cellValue not in invalidTile
+
 
     #Genera la lista de sucesores del nodo (Se necesita reimplementar)
     def GetSuccessors(self, node):
+        #TODO REALIZADO: implementar el método que devuelve los sucesores del nodo
         successors = []
         movements = [
             (AgentConsts.MOVE_UP, (0, -1)),
@@ -54,35 +73,23 @@ class BCProblem(Problem):
         ]
         
         for action, (dx, dy) in movements:
-            new_x = node.x + dx
-            new_y = node.y + dy
+            newX = node.x + dx
+            newY = node.y + dy
             
-            if self.IsValidMove(new_x, new_y):
-                new_value = self.GetCellValue(new_x, new_y)
-                cost = 1  # Costo base por movimiento
+            if self.isValidMove(newX, newY):
+                cellValue = self.map[newY, newX]
+                cost = self.GetMovementCost(cellValue)
                 
-                # Ajustar costo según el tipo de celda
-                if new_value == AgentConsts.BRICK:
-                    cost += 2  # Mayor costo para atravesar ladrillos
-                
-                new_node = BCNode(
+                newNode = BCNode(
                     parent=node,
                     g=node.g + cost,
-                    value=new_value,
-                    x=new_x,
-                    y=new_y
+                    value=cellValue,
+                    x=newX,
+                    y=newY
                 )
                 
-                # Priorizar power-ups sin alterar el costo real
-                if new_value == AgentConsts.HEALTH:
-                    new_node.priority = -1  # Prioridad alta (menor número)
-                else:
-                    new_node.priority = 0  # Prioridad normal
-                
-                successors.append(new_node)
-        
-        # Ordenar sucesores por prioridad
-        successors.sort(key=lambda x: x.priority)
+                newNode.SetH(self.Heuristic(newNode))
+                successors.append(newNode)
         
         return successors
     
