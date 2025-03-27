@@ -78,16 +78,18 @@ class BCProblem(Problem):
             
             if self.isValidMove(newX, newY):
                 cellValue = self.map[newY, newX]
-                cost = self.GetMovementCost(cellValue)
+                cost = self.GetCost(cellValue)
                 
-                newNode = BCNode(
-                    parent=node,
-                    g=node.g + cost,
-                    value=cellValue,
-                    x=newX,
-                    y=newY
-                )
+                if cost < sys.maxsize:
                 
+                    newNode = BCNode(
+                        parent=node,
+                        g=node.g + cost,
+                        value=cellValue,
+                        x=newX,
+                        y=newY
+                    )
+                    
                 newNode.SetH(self.Heuristic(newNode))
                 successors.append(newNode)
         
