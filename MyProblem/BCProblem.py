@@ -33,15 +33,57 @@ class BCProblem(Problem):
 
     #Calcula la heuristica del nodo en base al problema planteado (Se necesita reimplementar)
     def Heuristic(self, node):
-        #TODO: heurística del nodo
-        print("Aqui falta ncosas por hacer :) ")
-        return 0
+        #TODO REALIZADO heurística del nodo
+        goal = self.GetGoal()
+        resul = abs(node.x - goal.x) + abs(node.y - goal.y)
+
+        #Adicion por obstaculo encontrado
+        if node.value == AgentConsts.BRICK or node.value == AgentConsts.UNBREAKABLE:
+            resul += 2
+
+        return resul
 
     #Genera la lista de sucesores del nodo (Se necesita reimplementar)
-    def GetSucessors(self, node):
+    def GetSuccessors(self, node):
         successors = []
-        #TODO: sucesores de un nodo dado
-        print("Aqui falta ncosas por hacer :) ")
+        movements = [
+            (AgentConsts.MOVE_UP, (0, -1)),
+            (AgentConsts.MOVE_DOWN, (0, 1)),
+            (AgentConsts.MOVE_LEFT, (-1, 0)),
+            (AgentConsts.MOVE_RIGHT, (1, 0))
+        ]
+        
+        for action, (dx, dy) in movements:
+            new_x = node.x + dx
+            new_y = node.y + dy
+            
+            if self.IsValidMove(new_x, new_y):
+                new_value = self.GetCellValue(new_x, new_y)
+                cost = 1  # Costo base por movimiento
+                
+                # Ajustar costo según el tipo de celda
+                if new_value == AgentConsts.BRICK:
+                    cost += 2  # Mayor costo para atravesar ladrillos
+                
+                new_node = BCNode(
+                    parent=node,
+                    g=node.g + cost,
+                    value=new_value,
+                    x=new_x,
+                    y=new_y
+                )
+                
+                # Priorizar power-ups sin alterar el costo real
+                if new_value == AgentConsts.HEALTH:
+                    new_node.priority = -1  # Prioridad alta (menor número)
+                else:
+                    new_node.priority = 0  # Prioridad normal
+                
+                successors.append(new_node)
+        
+        # Ordenar sucesores por prioridad
+        successors.sort(key=lambda x: x.priority)
+        
         return successors
     
     #métodos estáticos
