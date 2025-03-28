@@ -124,8 +124,10 @@ class GoalOrientedAgent(BaseAgent):
         goal3Player = self._CreatePlayerGoal(perception)
 
         #Inicializamos el problema y A*
-        self.problem = BCProblem(initialNode,[goal1CommanCenter, goal2Life, goal3Player])
-        self.problem.InitMap(map)
+        xSize, ySize = map.shape
+
+        self.problem = BCProblem(initialNode,[goal1CommanCenter, goal2Life, goal3Player], xSize, ySize)
+        
 
         self.aStar = AStar(self.problem)
         self.aStar.heuristic = self.problem.Heuristic(self, initialNode)
