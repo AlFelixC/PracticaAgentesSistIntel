@@ -1,5 +1,3 @@
-
-
 #Algoritmo A* genérico que resuelve cualquier problema descrito usando la plantilla de la
 #la calse Problem que tenga como nodos hijos de la clase Node
 class AStar:
@@ -10,63 +8,53 @@ class AStar:
         self.problem = problem #problema a resolver
 
     def GetPlan(self):
-
         findGoal = False
         self.open.clear()
         self.precessed.clear()
-        self.open.append(self.problem.Initial())  #Metemos el nodo inicial en la lista open
+        self.open.append(self.problem.Initial())
         path = []
-
-        #Mientras no encontremos la meta y haya elementos en open...
-        while not findGoal and len(self.open) > 0:
-            #Ordenamos open por el valor F (G + H) del nodo (menor primero)
-            self.open.sort(key=lambda node: node.F())
+        
+        while not findGoal and self.open:
+            # Seleccionar nodo con menor coste F
+            current = min(self.open, key=lambda n: n.F())
+            self.open.remove(current)
+            self.precessed.append(current)
             
-            #Extraemos el nodo con menor F (el primero en la lista)
-            current = self.open.pop(0)
-
-            #Metemos el nodo actual al MAPA close
-            self.precessed.add(current)
-
-            #Comprobamos si hemos alcanzado el objetivo
-            if self.problem.IsGoal(current):
+            # Verificar si es la meta
+            if self.problem.IsASolution(self, current):
                 findGoal = True
-                path = self.ReconstructPath(current)  #Reconstruimos el path
-
-            else:
-                #Expandimos los sucesores del nodo actual
-                successors = self.problem.GetSuccessors(current)
-
-                if len(successors) == 0:
-                    #Si no existen sucesores, no existe una solucion apartir de aqui
-                    #Devolvemos el path vacio
+                path = self.ReconstructPath(current)
+                break
+            
+            # Generar y procesar sucesores
+            for successor in self.problem.GetSucessors(self, current):
+                new_g = current.G + self.problem.GetGCost(self, successor)
+                
+                #Si ya esta procesado, saltar
+                if any(successor.IsEqual(self, n) for n in self.precessed):
                     continue
-
-                for successor in successors:
-                    if successor in self.precessed:
-                        continue  #Ignoramos nodos ya procesados
-
-                    successorInOpen = self.GetSucesorInOpen(successor)
-                    newG = current.G() + self.problem.Cost(current, successor)
-
-                    if successorInOpen is None:
-                        #Si no esta en open, lo configuramos y lo metemos en open
-                        self._ConfigureNode(successor, current, newG)
-                        self.open.append(successor)
-                    else:
-                        # Si ya esta en open, comprobamos si el nuevo camino es mas eficiente
-                        if newG < successorInOpen.G():
-                            self._ConfigureNode(successorInOpen, current, newG)
-
-        return path
+                    
+                #Buscar en Open si el sucesor ya esta
+                in_open = next((n for n in self.open if successor.IsEqual(self, n)), None)
+                
+                if in_open:
+                    # Actualizar si encontramos mejor camino
+                    if new_g < in_open.G:
+                        self._ConfigureNode(in_open, current, new_g)
+                else:
+                    # Configurar y añadir nuevo nodo
+                    self._ConfigureNode(successor, current, new_g)
+                    self.open.append(successor)
+        
+        return path[::-1] if findGoal else []
 
     #nos permite configurar un nodo (node) con el padre y la nueva G
     def _ConfigureNode(self, node, parent, newG):
         #TODO REALIZADO
         node.SetParent(parent)
         node.SetG(newG)
-        # Seteamos la heurística usando el método del problema.
-        node.SetH(self.problem.Heuristic(node))
+        #Establecemos la heuristica del nodo
+        node.SetH(self.problem.Heuristic(self, node))
 
     #nos dice si un sucesor está en abierta. Si esta es que ya ha sido expandido y tendrá un coste, comprobar que le nuevo camino no es más eficiente
     #En caso de serlos, _ConfigureNode para setearle el nuevo padre y el nuevo G, asi como su heurística
