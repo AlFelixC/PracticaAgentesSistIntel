@@ -50,20 +50,22 @@ class BCProblem(Problem):
             return False
         
         #Obtener el valor de la celda
-        cellValue = self.map[y, x]
-        print("Valor de la celda: ", cellValue)
-        #Definir celdas no transitables
-        invalidTile = [AgentConsts.UNBREAKABLE, AgentConsts.BRICK, AgentConsts.COMMAND_CENTER, 
-                        AgentConsts.PLAYER, AgentConsts.OTHER, AgentConsts.SEMI_BREKABLE, 
-                        AgentConsts.SEMI_UNBREKABLE]
+        cellValue = self.map[x][y]  # Cambiado a [x][y]
+        
+        # Definir celdas no transitables
+        invalidTile = [
+            AgentConsts.UNBREAKABLE, AgentConsts.BRICK, AgentConsts.COMMAND_CENTER,
+            AgentConsts.PLAYER, AgentConsts.OTHER_AGENT, AgentConsts.SEMI_BREKABLE,
+            AgentConsts.SEMI_UNBREKABLE
+        ]
         
         #Un movimiento es valido si la celda no esta en la lista de no transitables
         return cellValue not in invalidTile
-
-
+    
+    
     #Genera la lista de sucesores del nodo (Se necesita reimplementar)
     def GetSuccessors(self, node):
-        #TODO REALIZADO: implementar el método que devuelve los sucesores del nodo
+        #TODO REALIZADO: implementado el metodo que devuelve los sucesores del nodo
         successors = []
         movements = [
             (AgentConsts.MOVE_UP, (0, -1)),
@@ -77,21 +79,19 @@ class BCProblem(Problem):
             newY = node.y + dy
             
             if self.isValidMove(newX, newY):
-                cellValue = self.map[newY, newX]
+                cellValue = self.map[newX][newY]
                 cost = self.GetCost(cellValue)
                 
-                if cost < sys.maxsize:
-                
+                if cost < sys.maxsize:  #Solo añadir nodos transitables (evitamos añadir nodos con coste infinito)
                     newNode = BCNode(
                         parent=node,
-                        g=node.g + cost,
+                        g=node.G + cost,
                         value=cellValue,
                         x=newX,
                         y=newY
                     )
-                    
-                newNode.SetH(self.Heuristic(newNode))
-                successors.append(newNode)
+                    newNode.SetH(self.Heuristic(newNode))
+                    successors.append(newNode)
         
         return successors
     
