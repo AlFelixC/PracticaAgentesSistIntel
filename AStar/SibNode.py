@@ -1,3 +1,4 @@
+from AStar.Node import Node
 #Creamos una clase hija como se nos pide en Node.py
 class SibNode(Node):
     def __init__(self, parent, g, state):
