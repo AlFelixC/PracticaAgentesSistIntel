@@ -34,7 +34,7 @@ class BCProblem(Problem):
     #Calcula la heuristica del nodo en base al problema planteado (Se necesita reimplementar)
     def Heuristic(self, node):
         #TODO REALIZADO heurística del nodo
-        #Distancia Manhattan al objetivo (En tablas en cuadricula es mas eficiente)
+        #Distancia Manhattan al objetivo (En tablas en cuadricula como la nuestra es mas eficiente)
         return abs(node.x - self.goal.x) + abs(node.y - self.goal.y)
 
     def GetMovementCost(self, cell_value):
@@ -50,12 +50,16 @@ class BCProblem(Problem):
             return False
         
         #Obtener el valor de la celda
-        cellValue = self.map[x][y]  # Cambiado a [x][y]
+        cellValue = self.map[x][y]
         
-        # Definir celdas no transitables
+        #Definimos cuales son las celdas intransitables
         invalidTile = [
-            AgentConsts.UNBREAKABLE, AgentConsts.BRICK, AgentConsts.COMMAND_CENTER,
-            AgentConsts.PLAYER, AgentConsts.OTHER_AGENT, AgentConsts.SEMI_BREKABLE,
+            AgentConsts.UNBREAKABLE,
+            AgentConsts.BRICK,
+            AgentConsts.COMMAND_CENTER,
+            AgentConsts.PLAYER,
+            AgentConsts.OTHER,
+            AgentConsts.SEMI_BREKABLE,
             AgentConsts.SEMI_UNBREKABLE
         ]
         
@@ -144,21 +148,21 @@ class BCProblem(Problem):
     #se utiliza para calcular el coste de cada elemento del mapa 
     @staticmethod
     def GetCost(value):
-        #TODO: debes darle un coste a cada tipo de casilla del mapa.
+        #TODO REALIZADO: Coste a cada casilla del mapa asignado
         if value == AgentConsts.NOTHING:
-            return 1  # Costo base para espacios vacíos
+            return 1  #Costo base para espacios vacios
         elif value == AgentConsts.BRICK:
-            return 3  # Mayor costo para atravesar ladrillos
+            return 3  #Mayor costo para atravesar ladrillos
         elif value == AgentConsts.LIFE:
-            return 0.5  # Incentivo para recoger power-ups de vida
+            return 0.5 #Incentivo para recoger vida
         elif value == AgentConsts.SHELL:
-            return 2  # Costo elevado para evitar proyectiles
+            return 2  #Coste elevado para evitar proyectiles
         elif value in [AgentConsts.SEMI_BREKABLE, AgentConsts.SEMI_UNBREKABLE]:
-            return 4  # Costo muy alto para obstáculos semi-destructibles
+            return 4  #Coste muy alto para obstaculos semi-destructibles
         elif value in [AgentConsts.UNBREAKABLE, AgentConsts.COMMAND_CENTER, AgentConsts.PLAYER, AgentConsts.OTHER]:
-            return sys.maxsize  # Costo infinito para obstáculos infranqueables
+            return sys.maxsize  #Coste infinito para obstaculos infranqueables
         else:
-            return sys.maxsize  # Por defecto, costo infinito para casillas desconocidas o no especificadas
+            return sys.maxsize  #Por defecto, costo infinito para casillas desconocidas o no especificadas
     
     #crea un nodo y lo añade a successors (lista) con el padre indicado y la posición x,y en coordenadas mapa 
     def CreateNode(self,successors,parent,x,y):
