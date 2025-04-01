@@ -39,3 +39,6 @@ class AgentConsts:
     LIFE = 7
     SEMI_BREKABLE = 8
     SEMI_UNBREKABLE = 9
+
+    #Nueva Constante para ySize
+    MAP_YSIZE = 15

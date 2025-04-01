@@ -175,3 +175,4 @@ class BCProblem(Problem):
     #Calcula el coste de ir del nodo from al nodo to (Se necesita reimplementar)
     def GetGCost(self, nodeTo):
         return BCProblem.GetCost(nodeTo.value)
+    

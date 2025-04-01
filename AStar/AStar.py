@@ -18,17 +18,17 @@ class AStar:
             # Seleccionar nodo con menor coste F
             current = min(self.open, key=lambda n: n.F())
             self.open.remove(current)
-            self.precessed.append(current)
+            self.precessed.add(current)
             
             # Verificar si es la meta
-            if self.problem.IsASolution(self, current):
+            if self.problem.IsASolution(current):
                 findGoal = True
                 path = self.ReconstructPath(current)
                 break
             
             # Generar y procesar sucesores
-            for successor in self.problem.GetSucessors(self, current):
-                new_g = current.G + self.problem.GetGCost(self, successor)
+            for successor in self.problem.GetSucessors(current):
+                new_g = current.G + self.problem.GetGCost(successor)
                 
                 #Si ya esta procesado, saltar
                 if any(successor.IsEqual(self, n) for n in self.precessed):

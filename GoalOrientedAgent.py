@@ -59,7 +59,7 @@ class GoalOrientedAgent(BaseAgent):
             self.plan=self._CreatePlan(perception, map)
         return action, shot
     
-    #método interno que encapsula la creació nde un plan
+    #método interno que encapsula la creacion de un plan
     def _CreatePlan(self,perception,map):
         #TODO REALIZADO (Sujeto a posibles cambios)
         currentGoal = self.problem.GetGoal()
@@ -115,22 +115,27 @@ class GoalOrientedAgent(BaseAgent):
     def _CreateDefaultGoal(self, perception):
         return GoalOrientedAgent.CreateNodeByPerception(perception,AgentConsts.COMMAND_CENTER,AgentConsts.COMMAND_CENTER_X,AgentConsts.COMMAND_CENTER_Y,15)
     
-    #no podemos iniciarlo en el start porque no conocemos el mapa ni las posiciones de los objetos
+    #No podemos iniciarlo en el start porque no conocemos el mapa ni las posiciones de los objetos
     def InitAgent(self,perception,map):
         #TODO REALIZADOS
         initialNode = self._CreateInitialNode(perception)
+
+        #Estos son los distintos objetivos del Agente
         goal1CommanCenter = self._CreateDefaultGoal(perception)
         goal2Life = self._CreateLifeGoal(perception)
         goal3Player = self._CreatePlayerGoal(perception)
 
         #Inicializamos el problema y A*
-        xSize, ySize = map.shape
-
-        self.problem = BCProblem(initialNode,[goal1CommanCenter, goal2Life, goal3Player], xSize, ySize)
+        mapLength = len(map)
+        ySize = AgentConsts.MAP_YSIZE
+        xSize = mapLength // ySize
         
-
+        #Creamos el problema a resolver
+        self.problem = BCProblem(initialNode, goal1CommanCenter, xSize, ySize)
+        
+        #Y su algoritmo de estrella correspondiente
         self.aStar = AStar(self.problem)
-        self.aStar.heuristic = self.problem.Heuristic(self, initialNode)
+        self.aStar.heuristic = self.problem.Heuristic(initialNode)
         self.plan = self._CreatePlan(perception,map)
 
         #Vamos a crear el Goal Monitor para saber si cumplimos los objetivos
