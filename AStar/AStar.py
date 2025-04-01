@@ -22,10 +22,13 @@ class AStar:
             
             # Verificar si es la meta
             if self.problem.IsASolution(current):
+                print("Encontramos la meta")
                 findGoal = True
                 path = self.ReconstructPath(current)
                 break
-            
+            else:
+                print("NO ES LA META")
+
             # Generar y procesar sucesores
             for successor in self.problem.GetSucessors(current):
                 new_g = current.G + self.problem.GetGCost(successor)

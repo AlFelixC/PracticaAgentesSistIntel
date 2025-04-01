@@ -63,7 +63,7 @@ class GoalOrientedAgent(BaseAgent):
     def _CreatePlan(self,perception,map):
         #TODO REALIZADO (Sujeto a posibles cambios)
         currentGoal = self.problem.GetGoal()
-        print("Objetivo actual ",currentGoal.value)
+        print("Objetivo actual ", currentGoal.value)
         if self.goalMonitor != None:
             #Seleccionamos el objetivo actual segun la estrategia que llevemos
             if self.goalMonitor.NeedReplaning(perception,map,self):
@@ -74,13 +74,13 @@ class GoalOrientedAgent(BaseAgent):
                 initialNode = self._CreateInitialNode(perception)
                 #Actualizamos el mapa
                 self.problem.InitMap(map)
-                self.problem.initialState = initialNode
+                self.problem.initial = initialNode
 
                 #Volvemos a inicializar el A* con el nuevo problema
                 self.aStar = AStar(self.problem)
 
                 #Ejecutar la busqueda A*
-                if self.aStar.Search():
+                if self.aStar.GetPlan():
                     newPlan = self.aStar.GetPlan()
                     print(f"Nuevo plan creado con {len(newPlan)} pasos.")
                     return newPlan
