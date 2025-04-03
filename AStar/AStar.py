@@ -31,18 +31,18 @@ class AStar:
 
             # Generar y procesar sucesores
             for successor in self.problem.GetSucessors(current):
-                new_g = current.G + self.problem.GetGCost(successor)
+                new_g = current.G() + self.problem.GetGCost(successor)
                 
                 #Si ya esta procesado, saltar
-                if any(successor.IsEqual(self, n) for n in self.precessed):
+                if any(successor.IsEqual(n) for n in self.precessed):
                     continue
                     
                 #Buscar en Open si el sucesor ya esta
-                in_open = next((n for n in self.open if successor.IsEqual(self, n)), None)
+                in_open = next((n for n in self.open if successor.IsEqual(n)), None)
                 
                 if in_open:
                     # Actualizar si encontramos mejor camino
-                    if new_g < in_open.G:
+                    if new_g < in_open.G():
                         self._ConfigureNode(in_open, current, new_g)
                 else:
                     # Configurar y añadir nuevo nodo
@@ -57,7 +57,7 @@ class AStar:
         node.SetParent(parent)
         node.SetG(newG)
         #Establecemos la heuristica del nodo
-        node.SetH(self.problem.Heuristic(self, node))
+        node.SetH(self.problem.Heuristic(node))
 
     #nos dice si un sucesor está en abierta. Si esta es que ya ha sido expandido y tendrá un coste, comprobar que le nuevo camino no es más eficiente
     #En caso de serlos, _ConfigureNode para setearle el nuevo padre y el nuevo G, asi como su heurística

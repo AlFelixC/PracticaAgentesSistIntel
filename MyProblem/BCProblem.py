@@ -68,7 +68,7 @@ class BCProblem(Problem):
     
     
     #Genera la lista de sucesores del nodo (Se necesita reimplementar)
-    def GetSuccessors(self, node):
+    def GetSucessors(self, node):
         #TODO REALIZADO: implementado el metodo que devuelve los sucesores del nodo
         successors = []
         movements = [
@@ -89,7 +89,7 @@ class BCProblem(Problem):
                 if cost < sys.maxsize:  #Solo añadir nodos transitables (evitamos añadir nodos con coste infinito)
                     newNode = BCNode(
                         parent=node,
-                        g=node.G + cost,
+                        g=node.G() + cost,
                         value=cellValue,
                         x=newX,
                         y=newY

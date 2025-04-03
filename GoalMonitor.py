@@ -51,12 +51,12 @@ class GoalMonitor:
         #Buscamos la primera meta valida segun nuestras prioridades
         for goalId, condition in goalsPriority:
             goal = self.goals[goalId]
-            if condition and self.isGoalValid(self, goal, map):
+            if condition and self.isGoalValid(goal, map):
                 self.currentGoalID = goalId
                 return goal
 
         #Es la meta establecida por defecto
-        return self.goals[random.randint(0,len(self.goals))]
+        return self.goals[random.randint(0,len(self.goals) - 1)]
     
     def UpdateGoals(self, goal, goalId):
         self.goals[goalId] = goal
@@ -65,8 +65,43 @@ class GoalMonitor:
     #NUEVOS METODOS AUXILIARES
     def isGoalValid(self, goal, map):
         x, y = goal.x, goal.y
-        #La celda a la que queremos llegar debe ser transitable y estar en el mapa
-        return (0 <= x < self.problem.xSize and
-                0 <= y < self.problem.ySize and
-                self.problem.GetCost(map[y][x]) < sys.maxsize)
-    
+
+        # 📢 Imprimir información de `map`
+        print(f"Tipo de `map`: {type(map)}")  
+        print(f"Ejemplo de `map`: {map[:5]}")  # Muestra los primeros 5 elementos
+
+        # Verificar si `map` es una lista de listas
+        if not isinstance(map, list):
+            print("Error: `map` no es una lista.")
+            return False
+        
+        if not all(isinstance(row, list) for row in map):
+            print("Error: `map` no es una lista de listas.")
+            return False
+
+        # 📢 Imprimir dimensiones esperadas vs. reales
+        expected_x, expected_y = self.problem.xSize, self.problem.ySize
+        actual_x, actual_y = len(map), len(map[0]) if len(map) > 0 else "undefined"
+        print(f"Dimensiones esperadas: ({expected_x}, {expected_y})")
+        print(f"Dimensiones reales: ({actual_x}, {actual_y})")
+
+        if actual_x != expected_x or actual_y != expected_y:
+            print("Error: Las dimensiones del mapa no coinciden con el problema.")
+            return False
+
+        # Verificar límites de `x` e `y`
+        if not (0 <= x < expected_x and 0 <= y < expected_y):
+            print(f"Error: Coordenadas fuera de rango -> x: {x}, y: {y}")
+            return False
+
+        # 📢 Acceder a la celda y verificar su valor
+        try:
+            cell_value = map[x][y]  # 📌 Se usa [x][y]
+            print(f"Valor en map[{x}][{y}]: {cell_value}")
+        except IndexError:
+            print(f"Error: IndexError al acceder a map[{x}][{y}].")
+            return False
+
+        # Comprobar si la celda es transitable
+        cost = self.problem.GetCost(cell_value)
+        return cost < sys.maxsize
