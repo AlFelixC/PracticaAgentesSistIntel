@@ -34,11 +34,11 @@ class AStar:
                 new_g = current.G() + self.problem.GetGCost(successor)
                 
                 #Si ya esta procesado, saltar
-                if any(successor.IsEqual(n) for n in self.precessed):
+                if any(successor == n for n in self.precessed):
                     continue
                     
                 #Buscar en Open si el sucesor ya esta
-                in_open = next((n for n in self.open if successor.IsEqual(n)), None)
+                in_open = next((n for n in self.open if successor == n), None)
                 
                 if in_open:
                     # Actualizar si encontramos mejor camino
@@ -67,7 +67,7 @@ class AStar:
         while found == None and i < len(self.open):
             node = self.open[i]
             i += 1
-            if node.IsEqual(sucesor):
+            if node == sucesor:
                 found = node
         return found
 

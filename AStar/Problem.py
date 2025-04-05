@@ -8,7 +8,7 @@ class Problem:
         return self.initial
 
     def IsASolution(self, node):
-        return node.IsEqual(self.goal)
+        return node == self.goal
 
     #Calcula la heuristica del nodo en base al problema planteado (Se necesita reimplementar)
     def Heuristic(self, node):

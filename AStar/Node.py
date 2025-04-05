@@ -12,10 +12,16 @@ class Node:
         return self.parent
     
     #comprueba que dos nodos son iguales (se necesita reimplementar)
-    def IsEqual(self,node):
+    def __eq__(self,node):
         raise NotImplementedError("IsEqual debe ser reimplementado en la clase hija")
         return False
     
+    #comprueba que dos nodos son iguales (se necesita reimplementar)
+    def __repr__(self):
+        pass
+
+    def __hash__(self):
+        pass
     #Establece el nodo padre para poder reconstruir el path solución
     def SetParent(self, p):
         self.parent = p
