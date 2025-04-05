@@ -66,10 +66,6 @@ class GoalMonitor:
     def isGoalValid(self, goal, map):
         x, y = goal.x, goal.y
 
-        # 📢 Imprimir información de `map`
-        print(f"Tipo de `map`: {type(map)}")  
-        print(f"Ejemplo de `map`: {map[:5]}")  # Muestra los primeros 5 elementos
-
         # Verificar si `map` es una lista de listas
         if not isinstance(map, list):
             print("Error: `map` no es una lista.")

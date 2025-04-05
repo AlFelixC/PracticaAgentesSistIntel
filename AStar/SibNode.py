@@ -5,7 +5,7 @@ class SibNode(Node):
         super().__init__(parent, g)
         self.state = state  #Estado especifico del nodo
     
-    def IsEqual(self, node):
+    def __eq__(self, node):
         #Verificar si el nodo comparado es del mismo tipo
         if not isinstance(node, SibNode):
             return False

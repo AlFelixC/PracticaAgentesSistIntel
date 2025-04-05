@@ -6,4 +6,3 @@ from GoalOrientedAgent import GoalOrientedAgent
 agent = GoalOrientedAgent("1","Rambo")
 agentLoop(agent,True)
 
- 
