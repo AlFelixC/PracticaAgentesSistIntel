@@ -30,9 +30,9 @@ class GoalMonitor:
         if perception[AgentConsts.HEALTH] < 2:
             return True
         
-        currentTime = perception[AgentConsts.TIME]
-        if (currentTime - self.lastTime) > 5000: #5000 ms desde la ultima replanificacion (5 segundines)
-            return True
+       #currentTime = perception[AgentConsts.TIME]
+        #if (currentTime - self.lastTime) > 5000: #5000 ms desde la ultima replanificacion (5 segundines)
+         #   return True
         
         if not self.isGoalValid(self.goals[self.currentGoalID], map):
             return True
@@ -43,9 +43,9 @@ class GoalMonitor:
     def SelectGoal(self, perception, map, agent):
         #TODO REALIZADO: definida la estrategia del cambio de meta
         goalsPriority = [
-            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 3), #Cambiamos la prioridad para que vaya a por la vida (si esta baja)
+            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)
             (self.GOAL_COMMAND_CENTRER, True), #Es el objetivo principal
-            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 3) #Ir en busca del jugador si tenemos la salud alta
+            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 2 or agent.plan is None) #Ir en busca del jugador si tenemos la salud alta
         ]
 
         #Buscamos la primera meta valida segun nuestras prioridades
@@ -68,11 +68,9 @@ class GoalMonitor:
 
         # Verificar si `map` es una lista de listas
         if not isinstance(map, list):
-            print("Error: `map` no es una lista.")
             return False
         
         if not all(isinstance(row, list) for row in map):
-            print("Error: `map` no es una lista de listas.")
             return False
 
         #Imprimir dimensiones esperadas y reales
@@ -92,7 +90,7 @@ class GoalMonitor:
 
         #Acceder a la celda y verificar su valor
         try:
-            cell_value = map[x][y]  # 📌 Se usa [x][y]
+            cell_value = map[x][y]  #Se usa [x][y]
             print(f"Valor en map[{x}][{y}]: {cell_value}")
         except IndexError:
             print(f"Error: IndexError al acceder a map[{x}][{y}].")

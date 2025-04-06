@@ -69,34 +69,29 @@ class GoalOrientedAgent(BaseAgent):
             print("Entramos en if de GOALMONITOR y vemos si hay que replanificar")
 
             #Seleccionamos el objetivo actual segun la estrategia que llevemos
-            if self.plan is None or self.goalMonitor.NeedReplaning(perception, map, self): 
+            #if self.plan is None : #or self.goalMonitor.NeedReplaning(perception, map, self)
 
-                newGoal = self.goalMonitor.SelectGoal(perception, map, self)  
-                print("CAMBIO de objetivo a ", {newGoal.value})
-                
+            newGoal = self.goalMonitor.SelectGoal(perception, map, self)  
+            print("CAMBIO de objetivo a ", {newGoal.value})
 
-                #Creamos el nuevo plan para alcanzar el objetivo
-                self.problem.SetGoal(newGoal)
-                initialNode = self._CreateInitialNode(perception)
-                self.problem.InitMap(map) #Actualizamos el mapa
-                self.problem.initial = initialNode
+            #Creamos el nuevo plan para alcanzar el objetivo
+            self.problem.SetGoal(newGoal)
+            initialNode = self._CreateInitialNode(perception)
+            self.problem.InitMap(map) #Actualizamos el mapa
+            self.problem.initial = initialNode
 
-                #Volvemos a inicializar el A* con el nuevo problema
-                self.aStar = AStar(self.problem)
-                print("Hemos inicializado el algoritmo A*")
-                newPlan = self.aStar.GetPlan()
+            #Volvemos a inicializar el A* con el nuevo problema
+            self.aStar = AStar(self.problem)
+            print("Hemos inicializado el algoritmo A*")
+            newPlan = self.aStar.GetPlan()
 
-                #Ejecutar la busqueda A*
-                if newPlan:
-                    print(f"Nuevo plan creado con {len(newPlan)} pasos. El plan es", newPlan)
-                    return newPlan
-                else:
-                    print("No se ha encontrado plan, por lo tanto mantenemos el actual")
-                    return self.plan
+            #Ejecutar la busqueda A*
+            if newPlan:
+                print(f"Nuevo plan creado con {len(newPlan)} pasos. El plan es", newPlan)
+                return newPlan
             else:
-                print("Mantenemos el plan actual, no necesitamos uno nuevo")
+                print("No se ha encontrado plan, por lo tanto mantenemos el actual")
                 return self.plan
-
             
         return self.plan
         
