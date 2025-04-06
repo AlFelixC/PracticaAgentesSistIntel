@@ -75,7 +75,7 @@ class GoalMonitor:
             print("Error: `map` no es una lista de listas.")
             return False
 
-        # 📢 Imprimir dimensiones esperadas vs. reales
+        #Imprimir dimensiones esperadas y reales
         expected_x, expected_y = self.problem.xSize, self.problem.ySize
         actual_x, actual_y = len(map), len(map[0]) if len(map) > 0 else "undefined"
         print(f"Dimensiones esperadas: ({expected_x}, {expected_y})")
@@ -85,12 +85,12 @@ class GoalMonitor:
             print("Error: Las dimensiones del mapa no coinciden con el problema.")
             return False
 
-        # Verificar límites de `x` e `y`
+        #Verificar limites de `x` e `y`
         if not (0 <= x < expected_x and 0 <= y < expected_y):
             print(f"Error: Coordenadas fuera de rango -> x: {x}, y: {y}")
             return False
 
-        # 📢 Acceder a la celda y verificar su valor
+        #Acceder a la celda y verificar su valor
         try:
             cell_value = map[x][y]  # 📌 Se usa [x][y]
             print(f"Valor en map[{x}][{y}]: {cell_value}")
