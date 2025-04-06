@@ -46,8 +46,8 @@ class AStar:
                     # Configurar y añadir nuevo nodo
                     self._ConfigureNode(successor, current, new_g)
                     self.open.append(successor)
-        
-        return path[::-1] if findGoal else []
+        #path[::-1] if findGoal else []
+        return path if findGoal else []
 
     #nos permite configurar un nodo (node) con el padre y la nueva G
     def _ConfigureNode(self, node, parent, newG):
