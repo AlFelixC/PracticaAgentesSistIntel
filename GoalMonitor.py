@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 class GoalMonitor:
-    GOAL_COMMAND_CENTRER = 0
+    GOAL_COMMAND_CENTER = 0
     GOAL_LIFE = 1
     GOAL_PLAYER = 2
 
@@ -21,6 +21,9 @@ class GoalMonitor:
         #Variables para forzar movimiento si se estanca
         self.lastPos = None
         self.lastPosTime = -1
+
+        #Para validar metas de la vida
+        self.lifeOnMap = True
 
     def ForceToRecalculate(self):
         self.recalculate = True
@@ -39,7 +42,7 @@ class GoalMonitor:
             return True
         #TODO REALIZADO: definida la estrategia de cuando queremos recalcular
         #puede ser , por ejemplo cada cierto tiempo o cuanod tenemos poca vida.
-        if perception[AgentConsts.HEALTH] < 2:
+        if perception[AgentConsts.HEALTH] < 2 and self.currentGoalID != self.GOAL_LIFE:
             print("REPLANIFICAMOS POR FALTA DE VIDA")
             return True
         
@@ -52,15 +55,7 @@ class GoalMonitor:
             self.lastPos = currentPosition
             self.lastPosTime = currentTime
         
-        """
-        if not self.isGoalValid(self.goals[self.currentGoalID], map):
-        print("REPLANIFICAMOS PORQUE EL GOAL NO ES VALIDO")
-        return True
-        
-        print("NO REPLANIFICAMOS")
-        return False
-
-        """  
+        self.lifeOnMap = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
 
         if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
             print("NO REPLANIFICAMOS, la meta actual sigue siendo válida")
@@ -80,9 +75,8 @@ class GoalMonitor:
 
         goalsPriority = [
             (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2 and lifeGot), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)#####
-            (self.GOAL_COMMAND_CENTRER, True),  #Es el objetivo principal    #####True
-            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 2 or agent.plan is None) #Ir en busca del jugador si tenemos la salud alta #####
-            
+            (self.GOAL_COMMAND_CENTER, True),  #Es el objetivo principal    #####True
+            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] > 2) #Ir en busca del jugador si tenemos la salud alta #####or agent.plan is None
         ]
 
         if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
@@ -99,8 +93,11 @@ class GoalMonitor:
                 print(f"ESCOJO EL GOAL: {goal}")
                 return goal
 
-        #Es la meta que estaba anteriormente
-        return self.goals[self.currentGoalID]
+        print("NO SE ENCONTRÓ NINGUNA META VÁLIDA")
+        self.currentGoalID = -1
+
+        #Es la meta que estaba anteriormente ###self.goals[self.currentGoalID]
+        return None
     
     def UpdateGoals(self, goal, goalId):
         self.goals[goalId] = goal
@@ -125,6 +122,14 @@ class GoalMonitor:
             if not all(isinstance(row, list) for row in map):
                 print("B (lista mal formada)")
                 return False
+            
+
+        if self.currentGoalID == self.GOAL_LIFE:
+            
+            print(f"ENTRO AL IF DE VER SI SE EL GOAL DE VIDA ES EL ACTUAL Y EL VALOR DE LIFE ON MAP ES : {self.lifeOnMap}")
+            if not getattr(self, 'lifeOnMap', True):
+                print("EL OBJETIVO DE VIDA YA NO ES VALIDO PORQUE NO ESTA EN EL MAPA")
+                return False
 
         #Acceder a la celda y verificar su valor
         try:
@@ -137,6 +142,11 @@ class GoalMonitor:
         # Comprobar si la celda es transitable
         cost = self.problem.GetCost(cell_value)
         print("POR EL COSTE")
+
+        if self.currentGoalID == self.GOAL_COMMAND_CENTER:
+            print("EL GOAL ES EL COMMAND")
+        else:
+            print("EL GOAL ES EL JUGADOR")
         return cost < sys.maxsize
     
 

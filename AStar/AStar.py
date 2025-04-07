@@ -32,10 +32,6 @@ class AStar:
                 new_g = current.G() + self.problem.GetGCost(successor)
                 
                 #Si ya esta procesado, saltar
-                """
-                if any(successor == n for n in self.precessed):
-                    continue
-                """
                 existInClosed = next((n for n in self.precessed if successor == n), None)
                 if existInClosed:
                     if new_g < existInClosed.G():

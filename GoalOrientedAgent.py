@@ -76,7 +76,11 @@ class GoalOrientedAgent(BaseAgent):
             #if self.plan is None : #or self.goalMonitor.NeedReplaning(perception, map, self)
 
             newGoal = self.goalMonitor.SelectGoal(perception,map, self)  
-            print("CAMBIO de objetivo a ", {newGoal.value})
+            if newGoal is not None:
+                print("CAMBIO de objetivo a ", {newGoal.value})
+            else:
+                print("No hay meta válida en este momento.")
+                return self.plan
 
             #Creamos el nuevo plan para alcanzar el objetivo
             self.problem.SetGoal(newGoal)
