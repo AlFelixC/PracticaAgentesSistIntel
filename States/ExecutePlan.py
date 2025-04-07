@@ -48,9 +48,11 @@ class ExecutePlan(State):
             move = self.GetDirection(nextNode,x,y)
             agent.directionToLook = move-1 ## la percepción es igual que el movimiento pero restando 1                
             shot = self.lastMove == move and perception[AgentConsts.CAN_FIRE] == 1
+            print(f"Shot: {shot}, self.LastMove: {self.lastMove}, move: {move} percep: {perception[AgentConsts.CAN_FIRE]}")
         else:
             move = self.GetDirection(nextNode,x,y)
             shot = nextNode.value == AgentConsts.BRICK or nextNode.value == AgentConsts.COMMAND_CENTER
+            print(f"Shot: {shot}, nextNode.value: {nextNode.value}, VALOR BRICK: {AgentConsts.BRICK}")
         self.lastMove = move
         return move, shot
 

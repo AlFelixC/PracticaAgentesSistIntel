@@ -17,22 +17,36 @@ class GoalMonitor:
         #Añadimos el nuevo id del goal actual
         self.currentGoalID = -1
 
+        #Variables para forzar movimiento si se estanca
+        self.lastPos = None
+        self.lastPosTime = -1
+
     def ForceToRecalculate(self):
         self.recalculate = True
 
     #determina si necesitamos replanificar
     def NeedReplaning(self, perception, map, agent):
+        currentTime = perception[AgentConsts.TIME]
+        currentPosition = (perception[AgentConsts.AGENT_X], perception[AgentConsts.AGENT_Y])
+
         if self.recalculate:
             self.lastTime = perception[AgentConsts.TIME]
+            self.lastPos = currentPosition
+            self.lastPosTime = currentTime
             return True
         #TODO REALIZADO: definida la estrategia de cuando queremos recalcular
         #puede ser , por ejemplo cada cierto tiempo o cuanod tenemos poca vida.
         if perception[AgentConsts.HEALTH] < 2:
             return True
         
-       #currentTime = perception[AgentConsts.TIME]
-        #if (currentTime - self.lastTime) > 5000: #5000 ms desde la ultima replanificacion (5 segundines)
-         #   return True
+        if self.lastPos == currentPosition:
+            if (currentTime - self.lastPosTime) > 5000:
+                print("Agente ESTANCADO, se forzara el movimiento")
+                self.ForceMove(agent, map)
+                self.lastPosTime = currentTime
+        else:
+            self.lastPos = currentPosition
+            self.lastPosTime = currentTime
         
         if not self.isGoalValid(self.goals[self.currentGoalID], map):
             return True
@@ -42,15 +56,19 @@ class GoalMonitor:
     #selecciona la meta mas adecuada al estado actual
     def SelectGoal(self, perception, map, agent):
         #TODO REALIZADO: definida la estrategia del cambio de meta
+        lifeGot = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
+        print(f"LIFEGOT SIGUE EN EL MAPA = {lifeGot}")
+
         goalsPriority = [
-            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)
-            (self.GOAL_COMMAND_CENTRER, True), #Es el objetivo principal
+            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2 and lifeGot), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)
             (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 2 or agent.plan is None) #Ir en busca del jugador si tenemos la salud alta
+            (self.GOAL_COMMAND_CENTRER, True), #Es el objetivo principal    
         ]
 
         #Buscamos la primera meta valida segun nuestras prioridades
         for goalId, condition in goalsPriority:
             goal = self.goals[goalId]
+            print(f"GOAL: {goalId}, CONDITION: {condition}")
             if condition and self.isGoalValid(goal, map):
                 self.currentGoalID = goalId
                 return goal
@@ -99,3 +117,14 @@ class GoalMonitor:
         # Comprobar si la celda es transitable
         cost = self.problem.GetCost(cell_value)
         return cost < sys.maxsize
+    
+
+    def ForceMove(self, agent, map):
+        directions = [(-1,0), (1,0), (0,-1), (0,1)]
+        for dx, dy in directions:
+            newX, newY = agent.x + dx, agent.y + dy
+            if 0 <= newX < len(map) and 0 <= newY < len(map[0]):
+                if map[newX][newY].value == AgentConsts.EMPTY:
+                    agent.x, agent.y = newX, newY
+                    print(f"Agente movido forzosamente a ({newX}, {newY})")
+                    break
