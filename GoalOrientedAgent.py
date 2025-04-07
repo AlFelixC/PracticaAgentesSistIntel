@@ -64,14 +64,18 @@ class GoalOrientedAgent(BaseAgent):
         #TODO REALIZADO (Sujeto a posibles cambios)
         currentGoal = self.problem.GetGoal()
         print("Objetivo actual ", {currentGoal.value})
+        self.problem.InitMap(map)
 
         if self.goalMonitor is not None:
             print("Entramos en if de GOALMONITOR y vemos si hay que replanificar")
 
+            if self.plan is not None and not self.goalMonitor.NeedReplaning(perception,map, self):
+                print("MANTENEMOS EL PLAN ACTUAL")
+                return self.plan
             #Seleccionamos el objetivo actual segun la estrategia que llevemos
             #if self.plan is None : #or self.goalMonitor.NeedReplaning(perception, map, self)
 
-            newGoal = self.goalMonitor.SelectGoal(perception, map, self)  
+            newGoal = self.goalMonitor.SelectGoal(perception,map, self)  
             print("CAMBIO de objetivo a ", {newGoal.value})
 
             #Creamos el nuevo plan para alcanzar el objetivo
@@ -133,6 +137,7 @@ class GoalOrientedAgent(BaseAgent):
         
         #Creamos el problema a resolver
         self.problem = BCProblem(initialNode, goal1CommanCenter, xSize, ySize)
+       # map = self.problem.map
 
         #Vamos a crear el Goal Monitor para saber si cumplimos los objetivos
         self.goalMonitor = GoalMonitor(self.problem,[goal1CommanCenter,goal2Life,goal3Player])
@@ -141,6 +146,7 @@ class GoalOrientedAgent(BaseAgent):
         self.aStar = AStar(self.problem)
         self.aStar.heuristic = self.problem.Heuristic(initialNode)
         self.plan = self._CreatePlan(perception,map)
+        print("Creamos plan")
 
        
     #muestra un plan por consola

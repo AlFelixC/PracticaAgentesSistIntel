@@ -32,8 +32,18 @@ class AStar:
                 new_g = current.G() + self.problem.GetGCost(successor)
                 
                 #Si ya esta procesado, saltar
+                """
                 if any(successor == n for n in self.precessed):
                     continue
+                """
+                existInClosed = next((n for n in self.precessed if successor == n), None)
+                if existInClosed:
+                    if new_g < existInClosed.G():
+                        self.precessed.remove(existInClosed)  # Lo sacamos para reexplorarlo
+                        self._ConfigureNode(successor, current, new_g)
+                        self.open.append(successor)
+                    continue
+
                     
                 #Buscar en Open si el sucesor ya esta
                 in_open = next((n for n in self.open if successor == n), None)

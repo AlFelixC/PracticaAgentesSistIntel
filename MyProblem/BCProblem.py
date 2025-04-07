@@ -53,9 +53,8 @@ class BCProblem(Problem):
         cellValue = self.map[x][y]
         
         #Definimos cuales son las celdas intransitables
-        invalidTile = [
+        invalidTile = [ #BRICK?
             AgentConsts.UNBREAKABLE,
-            AgentConsts.BRICK,
             AgentConsts.COMMAND_CENTER,
             AgentConsts.PLAYER,
             AgentConsts.OTHER,

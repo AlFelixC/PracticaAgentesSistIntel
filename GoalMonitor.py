@@ -1,5 +1,6 @@
 import random
 from States.AgentConsts import AgentConsts
+import numpy as np
 
 import sys
 
@@ -29,7 +30,9 @@ class GoalMonitor:
         currentTime = perception[AgentConsts.TIME]
         currentPosition = (perception[AgentConsts.AGENT_X], perception[AgentConsts.AGENT_Y])
 
+        map = self.problem.map
         if self.recalculate:
+            print("REPLANIFICAMOS DE MANERA FORZADA")
             self.lastTime = perception[AgentConsts.TIME]
             self.lastPos = currentPosition
             self.lastPosTime = currentTime
@@ -37,44 +40,67 @@ class GoalMonitor:
         #TODO REALIZADO: definida la estrategia de cuando queremos recalcular
         #puede ser , por ejemplo cada cierto tiempo o cuanod tenemos poca vida.
         if perception[AgentConsts.HEALTH] < 2:
+            print("REPLANIFICAMOS POR FALTA DE VIDA")
             return True
         
         if self.lastPos == currentPosition:
             if (currentTime - self.lastPosTime) > 5000:
-                print("Agente ESTANCADO, se forzara el movimiento")
+                print("AGENTE ESTANCADO, se forzara el movimiento")
                 self.ForceMove(agent, map)
                 self.lastPosTime = currentTime
         else:
             self.lastPos = currentPosition
             self.lastPosTime = currentTime
         
+        """
         if not self.isGoalValid(self.goals[self.currentGoalID], map):
-            return True
+        print("REPLANIFICAMOS PORQUE EL GOAL NO ES VALIDO")
+        return True
         
+        print("NO REPLANIFICAMOS")
         return False
+
+        """  
+
+        if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
+            print("NO REPLANIFICAMOS, la meta actual sigue siendo válida")
+            return False
+    
+        print("REPLANIFICAMOS PORQUE EL GOAL NO ES VALIDO")
+        return True
     
     #selecciona la meta mas adecuada al estado actual
     def SelectGoal(self, perception, map, agent):
         #TODO REALIZADO: definida la estrategia del cambio de meta
+        map = self.problem.map
+
         lifeGot = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
+        
         print(f"LIFEGOT SIGUE EN EL MAPA = {lifeGot}")
 
         goalsPriority = [
-            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2 and lifeGot), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)
-            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 2 or agent.plan is None) #Ir en busca del jugador si tenemos la salud alta
-            (self.GOAL_COMMAND_CENTRER, True), #Es el objetivo principal    
+            (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2 and lifeGot), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)#####
+            (self.GOAL_COMMAND_CENTRER, True),  #Es el objetivo principal    #####True
+            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] >= 2 or agent.plan is None) #Ir en busca del jugador si tenemos la salud alta #####
+            
         ]
 
+        if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
+            print(f"META ACTUAL ES VALIDA: {self.currentGoalID}")
+            return self.goals[self.currentGoalID]
+
+        print("NO HAY UNA META ACTUAL VALIDA")
         #Buscamos la primera meta valida segun nuestras prioridades
         for goalId, condition in goalsPriority:
             goal = self.goals[goalId]
             print(f"GOAL: {goalId}, CONDITION: {condition}")
             if condition and self.isGoalValid(goal, map):
                 self.currentGoalID = goalId
+                print(f"ESCOJO EL GOAL: {goal}")
                 return goal
 
-        #Es la meta establecida por defecto
-        return self.goals[random.randint(0,len(self.goals) - 1)]
+        #Es la meta que estaba anteriormente
+        return self.goals[self.currentGoalID]
     
     def UpdateGoals(self, goal, goalId):
         self.goals[goalId] = goal
@@ -82,29 +108,23 @@ class GoalMonitor:
 
     #NUEVOS METODOS AUXILIARES
     def isGoalValid(self, goal, map):
+
+        map = self.problem.map
         x, y = goal.x, goal.y
 
         # Verificar si `map` es una lista de listas
-        if not isinstance(map, list):
+        if not isinstance(map, (list, np.ndarray)):
+            print("A")
             return False
         
-        if not all(isinstance(row, list) for row in map):
-            return False
-
-        #Imprimir dimensiones esperadas y reales
-        expected_x, expected_y = self.problem.xSize, self.problem.ySize
-        actual_x, actual_y = len(map), len(map[0]) if len(map) > 0 else "undefined"
-        print(f"Dimensiones esperadas: ({expected_x}, {expected_y})")
-        print(f"Dimensiones reales: ({actual_x}, {actual_y})")
-
-        if actual_x != expected_x or actual_y != expected_y:
-            print("Error: Las dimensiones del mapa no coinciden con el problema.")
-            return False
-
-        #Verificar limites de `x` e `y`
-        if not (0 <= x < expected_x and 0 <= y < expected_y):
-            print(f"Error: Coordenadas fuera de rango -> x: {x}, y: {y}")
-            return False
+        if isinstance(map, np.ndarray):
+            if map.ndim != 2:
+                print("B (numpy pero no 2D)")
+                return False
+        else:
+            if not all(isinstance(row, list) for row in map):
+                print("B (lista mal formada)")
+                return False
 
         #Acceder a la celda y verificar su valor
         try:
@@ -116,6 +136,7 @@ class GoalMonitor:
 
         # Comprobar si la celda es transitable
         cost = self.problem.GetCost(cell_value)
+        print("POR EL COSTE")
         return cost < sys.maxsize
     
 
