@@ -42,6 +42,12 @@ class GoalMonitor:
             return True
         #TODO REALIZADO: definida la estrategia de cuando queremos recalcular
         #puede ser , por ejemplo cada cierto tiempo o cuanod tenemos poca vida.
+        if self.currentGoalID == self.GOAL_PLAYER:
+        
+            print("REPLANIFICAMOS POR TIEMPO")
+            self.lastTime = currentTime
+            return True
+
         if perception[AgentConsts.HEALTH] < 2 and self.currentGoalID != self.GOAL_LIFE:
             print("REPLANIFICAMOS POR FALTA DE VIDA")
             return True
