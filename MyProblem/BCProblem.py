@@ -55,7 +55,6 @@ class BCProblem(Problem):
         #Definimos cuales son las celdas intransitables
         invalidTile = [ #BRICK?
             AgentConsts.UNBREAKABLE,
-            AgentConsts.COMMAND_CENTER,
             AgentConsts.PLAYER,
             AgentConsts.OTHER,
             AgentConsts.SEMI_BREKABLE,

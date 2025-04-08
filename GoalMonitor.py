@@ -51,19 +51,7 @@ class GoalMonitor:
             print("HAY QUE REPLANIFICAR PARA SABER DONDE ESTA EL AGENTE")
             return True
 
-        """
-            if self.lastPos == currentPosition:
-                if (currentTime - self.lastPosTime) > 5000:
-                    print("AGENTE ESTANCADO, se forzara el movimiento")
-                    self.ForceMove(agent, map)
-                    self.lastPosTime = currentTime
-            else:
-                self.lastPos = currentPosition
-                self.lastPosTime = currentTime
-            
-            self.lifeOnMap = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
-
-        """ 
+    
         
         if self.currentGoalID == self.GOAL_COMMAND_CENTER:
             print("A POR EL COMMAND OE")
