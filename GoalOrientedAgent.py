@@ -69,11 +69,16 @@ class GoalOrientedAgent(BaseAgent):
         if self.goalMonitor is not None:
             print("Entramos en if de GOALMONITOR y vemos si hay que replanificar")
 
-            if self.plan is not None and not self.goalMonitor.NeedReplaning(perception,map, self):
-                print("MANTENEMOS EL PLAN ACTUAL")
-                return self.plan
-            #Seleccionamos el objetivo actual segun la estrategia que llevemos
-            #if self.plan is None : #or self.goalMonitor.NeedReplaning(perception, map, self)
+            if self.plan is not None and self.goalMonitor.AgentHunt(): #EL OBJETIVO ES EL JUGADOR
+
+                print("MANTENEMOS EL PLAN ACTUAL que es ir a por el jugador")
+            else:#ESTO ES QUE EL OBJETIVO NO ES EL JUGADOR
+                if self.plan is not None and not self.goalMonitor.NeedReplaning(perception, map, self):
+                    print("MANTENEMOS EL PLAN ACTUAL")
+                    self.problem.InitMap(map) #Actualizamos el mapa
+                    return self.plan
+                #Seleccionamos el objetivo actual segun la estrategia que llevemos
+                #if self.plan is None : #or self.goalMonitor.NeedReplaning(perception, map, self)
 
             newGoal = self.goalMonitor.SelectGoal(perception,map, self)  
             if newGoal is not None:

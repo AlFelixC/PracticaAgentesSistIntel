@@ -32,7 +32,7 @@ class GoalMonitor:
     def NeedReplaning(self, perception, map, agent):
         currentTime = perception[AgentConsts.TIME]
         currentPosition = (perception[AgentConsts.AGENT_X], perception[AgentConsts.AGENT_Y])
-
+        print("ENTRAMOS EN NEEDREPLANING")
         map = self.problem.map
         if self.recalculate:
             print("REPLANIFICAMOS DE MANERA FORZADA")
@@ -42,14 +42,13 @@ class GoalMonitor:
             return True
         #TODO REALIZADO: definida la estrategia de cuando queremos recalcular
         #puede ser , por ejemplo cada cierto tiempo o cuanod tenemos poca vida.
-        if self.currentGoalID == self.GOAL_PLAYER:
-        
-            print("REPLANIFICAMOS POR TIEMPO")
-            self.lastTime = currentTime
-            return True
 
         if perception[AgentConsts.HEALTH] < 2 and self.currentGoalID != self.GOAL_LIFE:
             print("REPLANIFICAMOS POR FALTA DE VIDA")
+            return True
+        
+        if self.currentGoalID == self.GOAL_PLAYER:
+            print("HAY QUE REPLANIFICAR PARA SABER DONDE ESTA EL AGENTE")
             return True
         
         if self.lastPos == currentPosition:
@@ -165,3 +164,8 @@ class GoalMonitor:
                     agent.x, agent.y = newX, newY
                     print(f"Agente movido forzosamente a ({newX}, {newY})")
                     break
+
+    
+    def AgentHunt(self):
+        if self.currentGoalID == self.GOAL_PLAYER:
+            return True
