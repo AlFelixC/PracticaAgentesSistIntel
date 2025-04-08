@@ -154,11 +154,13 @@ class BCProblem(Problem):
             return 3  #Mayor costo para atravesar ladrillos
         elif value == AgentConsts.LIFE:
             return 0.5 #Incentivo para recoger vida
+        elif value == AgentConsts.COMMAND_CENTER:
+            return 0.8
         elif value == AgentConsts.SHELL:
             return 2  #Coste elevado para evitar proyectiles
         elif value in [AgentConsts.SEMI_BREKABLE, AgentConsts.SEMI_UNBREKABLE]:
             return 4  #Coste muy alto para obstaculos semi-destructibles
-        elif value in [AgentConsts.UNBREAKABLE, AgentConsts.COMMAND_CENTER, AgentConsts.PLAYER, AgentConsts.OTHER]:
+        elif value in [AgentConsts.UNBREAKABLE, AgentConsts.PLAYER, AgentConsts.OTHER]:
             return sys.maxsize  #Coste infinito para obstaculos infranqueables
         else:
             return sys.maxsize  #Por defecto, costo infinito para casillas desconocidas o no especificadas

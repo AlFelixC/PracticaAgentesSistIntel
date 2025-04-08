@@ -50,21 +50,28 @@ class GoalMonitor:
         if self.currentGoalID == self.GOAL_PLAYER:
             print("HAY QUE REPLANIFICAR PARA SABER DONDE ESTA EL AGENTE")
             return True
-        
-        if self.lastPos == currentPosition:
-            if (currentTime - self.lastPosTime) > 5000:
-                print("AGENTE ESTANCADO, se forzara el movimiento")
-                self.ForceMove(agent, map)
+
+        """
+            if self.lastPos == currentPosition:
+                if (currentTime - self.lastPosTime) > 5000:
+                    print("AGENTE ESTANCADO, se forzara el movimiento")
+                    self.ForceMove(agent, map)
+                    self.lastPosTime = currentTime
+            else:
+                self.lastPos = currentPosition
                 self.lastPosTime = currentTime
-        else:
-            self.lastPos = currentPosition
-            self.lastPosTime = currentTime
+            
+            self.lifeOnMap = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
+
+        """ 
         
-        self.lifeOnMap = (perception[AgentConsts.LIFE_X] != -1 and perception[AgentConsts.LIFE_Y] != -1)
+        if self.currentGoalID == self.GOAL_COMMAND_CENTER:
+            print("A POR EL COMMAND OE")
+            return True
 
         if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
             print("NO REPLANIFICAMOS, la meta actual sigue siendo válida")
-            return False
+            return True
     
         print("REPLANIFICAMOS PORQUE EL GOAL NO ES VALIDO")
         return True
@@ -80,8 +87,9 @@ class GoalMonitor:
 
         goalsPriority = [
             (self.GOAL_LIFE, perception[AgentConsts.HEALTH] < 2 and lifeGot), #Cambiamos la prioridad para que vaya a por la vida (si esta muy baja)#####
-            (self.GOAL_COMMAND_CENTER, True),  #Es el objetivo principal    #####True
-            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] > 2) #Ir en busca del jugador si tenemos la salud alta #####or agent.plan is None
+            (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] == 3), #Ir en busca del jugador si tenemos la salud alta #####or agent.plan is None
+            (self.GOAL_COMMAND_CENTER, True) #Es el objetivo principal    #####True
+            
         ]
 
         
@@ -89,19 +97,19 @@ class GoalMonitor:
             print(f"META ACTUAL ES VALIDA: {self.currentGoalID}")
 
             if self.currentGoalID == self.GOAL_PLAYER:
-                playerGoal = self.goals[self.GOAL_PLAYER]
+                playerGoal = (perception[AgentConsts.AGENT_X], perception[AgentConsts.AGENT_Y])
                 commandGoal = self.goals[self.GOAL_COMMAND_CENTER]
 
-                distToCommand = abs(playerGoal.x - commandGoal.x) + abs(playerGoal.y - commandGoal.y)
+                distToCommand = abs(playerGoal[0] - commandGoal.x) + abs(playerGoal[1] - commandGoal.y)
 
                 print(f"Distancia entre jugador y Command Center: {distToCommand}")
 
-                if distToCommand <= 5 and self.isGoalValid(commandGoal, map):
+                if distToCommand <= 5:
                     print("Command Center está cerca del jugador. Cambiando objetivo.")
                     self.currentGoalID = self.GOAL_COMMAND_CENTER
                     return commandGoal
                 
-            return self.goals[self.currentGoalID]
+                return self.goals[self.currentGoalID]
 
         print("NO HAY UNA META ACTUAL VALIDA")
         #Buscamos la primera meta valida segun nuestras prioridades
@@ -165,8 +173,16 @@ class GoalMonitor:
 
         if self.currentGoalID == self.GOAL_COMMAND_CENTER:
             print("EL GOAL ES EL COMMAND")
-        else:
+        elif self.currentGoalID == self.GOAL_PLAYER:
             print("EL GOAL ES EL JUGADOR")
+        else:
+            print("EL GOAL ES LA VIDA")
+
+        print(f"GOAL VALID DEVUELVE {cost < sys.maxsize}")
+        print(f"COSTE: {cost}")
+        print(f"SYS: {sys.maxsize}")
+        
+            
         return cost < sys.maxsize
     
 

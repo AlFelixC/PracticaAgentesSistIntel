@@ -40,19 +40,18 @@ class AStar:
                         self.open.append(successor)
                     continue
 
-                    
                 #Buscar en Open si el sucesor ya esta
                 in_open = next((n for n in self.open if successor == n), None)
                 
                 if in_open:
-                    # Actualizar si encontramos mejor camino
+                    #Actualizar si encontramos mejor camino
                     if new_g < in_open.G():
                         self._ConfigureNode(in_open, current, new_g)
                 else:
-                    # Configurar y añadir nuevo nodo
+                    #Configurar y añadir nuevo nodo
                     self._ConfigureNode(successor, current, new_g)
                     self.open.append(successor)
-
+        print(f"EL PATH {path}")
         return path if findGoal else []
 
     #nos permite configurar un nodo (node) con el padre y la nueva G

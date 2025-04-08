@@ -92,6 +92,8 @@ class GoalOrientedAgent(BaseAgent):
             initialNode = self._CreateInitialNode(perception)
             self.problem.InitMap(map) #Actualizamos el mapa
             self.problem.initial = initialNode
+            print(f"El INITIAL NODE{initialNode}")
+
 
             #Volvemos a inicializar el A* con el nuevo problema
             self.aStar = AStar(self.problem)
@@ -103,7 +105,9 @@ class GoalOrientedAgent(BaseAgent):
                 print(f"Nuevo plan creado con {len(newPlan)} pasos. El plan es", newPlan)
                 return newPlan
             else:
+                print(f"Nuevo plan creado con {len(newPlan)} pasos. El plan es", newPlan)
                 print("No se ha encontrado plan, por lo tanto mantenemos el actual")
+                self.goalMonitor.NeedReplaning(perception, map, self)
                 return self.plan
             
         return self.plan
