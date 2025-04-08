@@ -92,6 +92,8 @@ class GoalOrientedAgent(BaseAgent):
             initialNode = self._CreateInitialNode(perception)
             self.problem.InitMap(map) #Actualizamos el mapa
             self.problem.initial = initialNode
+            
+
             print(f"El INITIAL NODE{initialNode}")
 
 
