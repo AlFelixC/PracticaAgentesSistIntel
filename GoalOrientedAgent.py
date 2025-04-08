@@ -27,6 +27,7 @@ class GoalOrientedAgent(BaseAgent):
         self.plan = None
         self.goalMonitor = None
         self.agentInit = False
+        
 
     #Metodo que se llama al iniciar el agente. No devuelve nada y sirve para contruir el agente
     def Start(self):
@@ -92,8 +93,6 @@ class GoalOrientedAgent(BaseAgent):
             initialNode = self._CreateInitialNode(perception)
             self.problem.InitMap(map) #Actualizamos el mapa
             self.problem.initial = initialNode
-            
-
             print(f"El INITIAL NODE{initialNode}")
 
 
