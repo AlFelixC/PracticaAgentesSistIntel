@@ -84,8 +84,23 @@ class GoalMonitor:
             (self.GOAL_PLAYER, perception[AgentConsts.HEALTH] > 2) #Ir en busca del jugador si tenemos la salud alta #####or agent.plan is None
         ]
 
+        
         if self.currentGoalID != -1 and self.isGoalValid(self.goals[self.currentGoalID], map):
             print(f"META ACTUAL ES VALIDA: {self.currentGoalID}")
+
+            if self.currentGoalID == self.GOAL_PLAYER:
+                playerGoal = self.goals[self.GOAL_PLAYER]
+                commandGoal = self.goals[self.GOAL_COMMAND_CENTER]
+
+                distToCommand = abs(playerGoal.x - commandGoal.x) + abs(playerGoal.y - commandGoal.y)
+
+                print(f"Distancia entre jugador y Command Center: {distToCommand}")
+
+                if distToCommand <= 5 and self.isGoalValid(commandGoal, map):
+                    print("Command Center está cerca del jugador. Cambiando objetivo.")
+                    self.currentGoalID = self.GOAL_COMMAND_CENTER
+                    return commandGoal
+                
             return self.goals[self.currentGoalID]
 
         print("NO HAY UNA META ACTUAL VALIDA")
